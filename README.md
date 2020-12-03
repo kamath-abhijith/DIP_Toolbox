@@ -17,3 +17,8 @@ This repository contains image processing assignments from E9 241 Digital Image 
     - Saturated Contrast Stretching
     - Image Resizing
     - Image Rotation
+
+- Assignment 3
+    - Spatial Filtering
+    - Frequency-Domain Filtering
+    - Homomorphic Filtering
