@@ -15,7 +15,9 @@ from skimage import io
 from matplotlib import pyplot as plt
 from matplotlib import style
 from matplotlib import rcParams
-from patchify import patchify, unpatchify
+
+from sklearn.feature_extraction.image import extract_patches_2d
+from sklearn.feature_extraction.image import reconstruct_from_patches_2d
 
 # %% FUNCTION DEFINITION
 
@@ -45,16 +47,15 @@ image = io.imread('images/lena.tif', 0)
 m,n = image.shape
 
 patch_size = (16,16)
-patches = patchify(image, patch_size, step=1)
+patches = extract_patches_2d(image, patch_size)
 
 delta = 1
 processed_patches = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
-    for j in range(patches.shape[1]):
-        smooth_patch = quad_smoothing(patches[i][j].flatten(), delta)
-        processed_patches[i][j] = smooth_patch.reshape(patch_size)
+    smooth_patch = quad_smoothing(patches[i].flatten(), delta)
+    processed_patches[i] = smooth_patch.reshape(patch_size)
 
-smooth_image = unpatchify(processed_patches, image.shape)
+smooth_image = reconstruct_from_patches_2d(processed_patches, image.shape)
 
 # %% PLOTS: QUADRATIC SMOOTHING
 fig, plts = plt.subplots(1,2, figsize=(10,6))
