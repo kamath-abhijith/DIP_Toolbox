@@ -48,7 +48,7 @@ def quad_smoothing(x, delta=1):
 
     return np.linalg.solve(A,x)
 
-# TOTAL VARIATION DENOISING
+# TOTAL VARIATION DENOISING USING CLIPPING
 def clipping_TV(y, lambd=1, alpha=1, tol=1e-6, max_iterations=25):
     ''' INPUT: Measurement, y
                Denoising weight, lambda
@@ -73,6 +73,29 @@ def clipping_TV(y, lambd=1, alpha=1, tol=1e-6, max_iterations=25):
 
     return x
 
+# TOTAL VARIATION DENOISING VIA MAJORISER MINIMISATION
+def majoriser_minimisation_TV(y, lambd=1, tol=1e-6, max_iterations=25):
+    ''' INPUT: Measurement, y
+               Denoising weight, lambda
+    
+        OUTPUT: Total Variation Denoising
+                z^* = arg min || z - x ||^2 + lambd || Dz ||^1,
+                where D is the first difference operator
+    '''
+
+    N = len(y)
+    D = sp.linalg.toeplitz(np.hstack(([-1],np.zeros(N-2))),np.hstack(([-1,1],np.zeros(N-2))))
+
+    x = np.zeros(N)
+    for _ in range(max_iterations):
+        xcopy = x
+
+        A = np.matmul(D.T, (2.0/lambd)*np.diag(np.abs(D.dot(x))) + np.matmul(D,D.T))
+        x = y - np.matmul(A, D.dot(y))
+        if np.linalg.norm(x-xcopy)<=tol:
+            break
+
+    return x
 
 # %% MAIN
 image = io.imread('images/house.tif', 0)
@@ -90,6 +113,7 @@ alpha = 2
 processed_patches = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
     smooth_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
+    # smooth_patch = majoriser_minimisation_TV(patches[i].flatten(), lambd)
     processed_patches[i] = smooth_patch.reshape(patch_size)
 
 TV_image = reconstruct_from_patches_2d(processed_patches, image.shape)
