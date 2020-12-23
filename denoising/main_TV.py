@@ -84,21 +84,46 @@ noisy_image = image + sigma*np.random.randn(m,n)
 patch_size = (8,8)
 patches = extract_patches_2d(noisy_image, patch_size)
 
+# Total Variation
 lambd = 10
 alpha = 2
 processed_patches = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
-    # smooth_patch = quad_smoothing(patches[i].flatten(), delta)
     smooth_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
     processed_patches[i] = smooth_patch.reshape(patch_size)
 
-smooth_image = reconstruct_from_patches_2d(processed_patches, image.shape)
+TV_image = reconstruct_from_patches_2d(processed_patches, image.shape)
 
-# %% PLOTS: QUADRATIC SMOOTHING
-fig, plts = plt.subplots(1,3, figsize=(15,6))
-plts[0].imshow(image, cmap='gray')
-plts[1].imshow(noisy_image, cmap='gray')
-plts[2].imshow(smooth_image, cmap='gray')
+# Quadratic Smoothing
+lambd = 10
+alpha = 2
+processed_patches = np.zeros(patches.shape)
+for i in range(patches.shape[0]):
+    smooth_patch = quad_smoothing(patches[i].flatten(), lambd)
+    processed_patches[i] = smooth_patch.reshape(patch_size)
+
+quad_image = reconstruct_from_patches_2d(processed_patches, image.shape)
+
+# %% PLOTS: TV AND QUADRATIC SMOOTHING
+style.use('classic')
+
+rcParams['text.usetex'] = True
+rcParams.update({'font.size': 10})
+rcParams['text.latex.preamble'] = [r'\usepackage{tgheros}'] 
+
+fig, plts = plt.subplots(2,2, figsize=(10,12))
+plts[0][0].imshow(image, cmap='gray')
+plts[0][0].set_title(r"Original Image")
+
+plts[0][1].imshow(noisy_image, cmap='gray')
+plts[0][1].set_title(r"Noisy Image")
+
+plts[1][0].imshow(TV_image, cmap='gray')
+plts[1][0].set_title(r"TV Denoising")
+
+plts[1][1].imshow(quad_image, cmap='gray')
+plts[1][1].set_title(r"Quadratic Smoothing")
+
 plt.show()
 
 # %%
