@@ -49,7 +49,7 @@ def quad_smoothing(x, delta=1):
     return np.linalg.solve(A,x)
 
 # TOTAL VARIATION DENOISING USING CLIPPING
-def clipping_TV(y, lambd=1, alpha=1, tol=1e-6, max_iterations=25):
+def clipping_TV(y, lambd=1, alpha=1, tol=1e-12, max_iterations=25):
     ''' INPUT: Measurement, y
                Denoising weight, lambda
                Majoriser weight, alpha
@@ -74,7 +74,7 @@ def clipping_TV(y, lambd=1, alpha=1, tol=1e-6, max_iterations=25):
     return x
 
 # TOTAL VARIATION DENOISING VIA MAJORISER MINIMISATION
-def majoriser_minimisation_TV(y, lambd=1, tol=1e-6, max_iterations=25):
+def majoriser_minimisation_TV(y, lambd=1, tol=1e-12, max_iterations=25):
     ''' INPUT: Measurement, y
                Denoising weight, lambda
     
@@ -90,8 +90,8 @@ def majoriser_minimisation_TV(y, lambd=1, tol=1e-6, max_iterations=25):
     for _ in range(max_iterations):
         xcopy = x
 
-        A = np.matmul(D.T, (2.0/lambd)*np.diag(np.abs(D.dot(x))) + np.matmul(D,D.T))
-        x = y - np.matmul(A, D.dot(y))
+        A = np.linalg.solve((2.0/lambd)*np.diag(np.abs(D.dot(x))) + np.matmul(D,D.T), D.dot(y))
+        x = y - D.T.dot(A)
         if np.linalg.norm(x-xcopy)<=tol:
             break
 
@@ -99,27 +99,28 @@ def majoriser_minimisation_TV(y, lambd=1, tol=1e-6, max_iterations=25):
 
 # %% MAIN
 image = io.imread('images/house.tif', 0)
+# image = image[100:132,100:132]
 m,n = image.shape
 
-sigma = 10
+sigma = 5
 noisy_image = image + sigma*np.random.randn(m,n)
 
 patch_size = (8,8)
 patches = extract_patches_2d(noisy_image, patch_size)
 
 # Total Variation
-lambd = 10
+lambd = 5
 alpha = 2
 processed_patches = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
-    smooth_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
-    # smooth_patch = majoriser_minimisation_TV(patches[i].flatten(), lambd)
+    # smooth_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
+    smooth_patch = majoriser_minimisation_TV(patches[i].flatten(), lambd)
     processed_patches[i] = smooth_patch.reshape(patch_size)
 
 TV_image = reconstruct_from_patches_2d(processed_patches, image.shape)
 
 # Quadratic Smoothing
-lambd = 10
+lambd = 5
 alpha = 2
 processed_patches = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
@@ -136,16 +137,16 @@ rcParams.update({'font.size': 10})
 rcParams['text.latex.preamble'] = [r'\usepackage{tgheros}'] 
 
 fig, plts = plt.subplots(2,2, figsize=(10,12))
-plts[0][0].imshow(image, cmap='gray')
+plts[0][0].imshow(image, vmin=0, vmax=255, cmap='gray')
 plts[0][0].set_title(r"Original Image")
 
-plts[0][1].imshow(noisy_image, cmap='gray')
+plts[0][1].imshow(noisy_image, vmin=0, vmax=255, cmap='gray')
 plts[0][1].set_title(r"Noisy Image")
 
-plts[1][0].imshow(TV_image, cmap='gray')
+plts[1][0].imshow(TV_image, vmin=0, vmax=255, cmap='gray')
 plts[1][0].set_title(r"TV Denoising")
 
-plts[1][1].imshow(quad_image, cmap='gray')
+plts[1][1].imshow(quad_image, vmin=0, vmax=255, cmap='gray')
 plts[1][1].set_title(r"Quadratic Smoothing")
 
 plt.show()
