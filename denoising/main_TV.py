@@ -110,26 +110,22 @@ noisy_image = image + sigma*np.random.randn(m,n)
 patch_size = (8,8)
 patches = extract_patches_2d(noisy_image, patch_size)
 
-# Total Variation
 lambd = 5
 alpha = 2
-processed_patches = np.zeros(patches.shape)
+processed_patches_TV = np.zeros(patches.shape)
+processed_patches_quad = np.zeros(patches.shape)
 for i in range(patches.shape[0]):
-    # smooth_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
-    smooth_patch = majoriser_minimisation_TV(patches[i].flatten(), lambd)
-    processed_patches[i] = smooth_patch.reshape(patch_size)
+    # TOTAL VARIATION
+    TV_patch = clipping_TV(patches[i].flatten(), lambd, alpha)
+    # smooth_patch = majoriser_minimisation_TV(patches[i].flatten(), lambd)
+    processed_patches_TV[i] = TV_patch.reshape(patch_size)
 
-TV_image = reconstruct_from_patches_2d(processed_patches, image.shape)
+    # QUADRATIC SMOOTHING
+    quad_patch = quad_smoothing(patches[i].flatten(), lambd)
+    processed_patches_quad[i] = quad_patch.reshape(patch_size)
 
-# Quadratic Smoothing
-lambd = 5
-alpha = 2
-processed_patches = np.zeros(patches.shape)
-for i in range(patches.shape[0]):
-    smooth_patch = quad_smoothing(patches[i].flatten(), lambd)
-    processed_patches[i] = smooth_patch.reshape(patch_size)
-
-quad_image = reconstruct_from_patches_2d(processed_patches, image.shape)
+TV_image = reconstruct_from_patches_2d(processed_patches_TV, image.shape)
+quad_image = reconstruct_from_patches_2d(processed_patches_quad, image.shape)
 
 # %% PLOTS: TV AND QUADRATIC SMOOTHING
 style.use('classic')
