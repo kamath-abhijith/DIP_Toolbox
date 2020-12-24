@@ -22,3 +22,8 @@ This repository contains image processing assignments from E9 241 Digital Image 
     - Spatial Filtering
     - Frequency-Domain Filtering
     - Homomorphic Filtering
+
+- Denoising
+    - Quadratic Smoothing
+    - Total Variation using Clipping
+    - Total Variation using Majoriser Minimisation
