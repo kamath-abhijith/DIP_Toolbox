@@ -3,6 +3,8 @@
 #   Contents:
 #       - Quadratic Smoothing
 #       - Total Variation Denoising
+#           - using clipping
+#           - using majoriser minimisation
 #
 #   Author: Abijith J Kamath
 #   https://kamath-abhijth.github.io
