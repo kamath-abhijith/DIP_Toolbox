@@ -23,6 +23,15 @@ This repository contains image processing assignments from E9 241 Digital Image 
     - Frequency-Domain Filtering
     - Homomorphic Filtering
 
+- Assignment 4
+    - Inverse Filter
+    - Wiener Filter
+    - Constrained Least-Sqaures
+    - Median Filter
+    - Gaussian Filter
+    - Sobel and Prewitt Edge Detection
+    - Image Quality Assessment - PSNR and SSIM
+
 - Denoising
     - Quadratic Smoothing
     - Total Variation using Clipping
