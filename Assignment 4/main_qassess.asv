@@ -17,18 +17,14 @@ ssimScore = zeros(1,145);
 for i = 1:145
     imageName = imageFiles(i).name;
     blurImage = imread(strcat('hw5/gblur/',string(imageFilenames(i))));
-
     trueImage = imread(strcat('hw5/refimgs/',string(refnames_blur(i))));
 
     mseScore = immse(blurImage, trueImage);
     psnrScore(i) = 10*log10(255/mseScore);
     [ssimScore(i), ~] = ssim(blurImage, trueImage);
-
 end
 
-%% PLOTS
+%% CORRELATION
 
-figure()
-plot(ssimScore)
-hold on
-plot((blur_dmos-mean(blur_dmos)))
+psnrCorr = corr(psnrScore, blur_dmos(1:145))
+ssimCorr = corr(ssimScore, blur_dmos(1:145))

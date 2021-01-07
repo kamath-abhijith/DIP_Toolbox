@@ -24,9 +24,7 @@ for i = 1:145
     [ssimScore(i), ~] = ssim(blurImage, trueImage);
 end
 
-%% PLOTS
+%% CORRELATION
 
-figure()
-plot(psnrScore)
-hold on
-plot(0.5*(blur_dmos-mean(blur_dmos)))
+psnrCorr = corrcoef(psnrScore, blur_dmos(1:145))
+ssimCorr = corrcoef(ssimScore, blur_dmos(1:145))
